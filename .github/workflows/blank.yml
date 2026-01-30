@@ -1,32 +1,41 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline  # Название нашего пайплайна
 
+# КОГДА запускать этот пайплайн?
 on:
-  push:
+  push:  # При каждом пуше в репозиторий
+    branches: [ main, master ]
+  pull_request:  # И при создании Pull Request
     branches: [ main, master ]
 
+# РАБОЧИЕ МЕСТА (виртуальные машины)
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  build-and-test:  # Название задачи
+    runs-on: ubuntu-latest  # Запускать на последнем Ubuntu
     
     steps:
     # Шаг 1: Получить код из репозитория
     - name: Checkout code
       uses: actions/checkout@v4
     
-    # Шаг 2: Простая проверка - выводим список файлов
-    - name: List files
-      run: ls -la
+    # Шаг 2: Настроить Node.js (если нужен)
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
     
-    # Шаг 3: Проверим, что HTML файл существует
-    - name: Check HTML file
+    # Шаг 3: Установить зависимости (если есть package.json)
+    - name: Install dependencies
+      run: npm install
+      # Если package.json нет - этот шаг пропустится
+    
+    # Шаг 4: Запустить тесты (если есть)
+    - name: Run tests
+      run: npm test
+      # Если тестов нет - можно закомментировать
+    
+    # Шаг 5: Проверить, что код собирается
+    - name: Build project
       run: |
-        if [ -f "index.html" ]; then
-          echo "✅ index.html найден!"
-        else
-          echo "❌ index.html не найден!"
-          exit 1
-        fi
-    
-    # Шаг 4: Можно проверить валидность HTML (опционально)
-    - name: Validate HTML
-      run: echo "Здесь можно добавить валидацию HTML"
+        echo "Проверяем, что проект собирается..."
+        # Здесь может быть ваша команда сборки
+        # Например: npm run build
